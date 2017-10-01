@@ -47,7 +47,8 @@ public class GUI {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+		final ScheduledExecutorService[] executorService = new ScheduledExecutorService[1];
+		executorService[0] = Executors.newSingleThreadScheduledExecutor();
 		
 		frame = new JFrame();
 		int[] input = {};
@@ -98,7 +99,7 @@ public class GUI {
 		advance10.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				for(int i = 0; i < 10; i++){
-					executorService.submit(new Advance());
+					executorService[0].submit(new Advance());
 				}
 			}
 		});
@@ -111,7 +112,7 @@ public class GUI {
 		advance25.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				for(int i = 0; i < 25; i++){
-					executorService.submit(new Advance(100));
+					executorService[0].submit(new Advance(100));
 				}
 			}
 		});
@@ -119,19 +120,26 @@ public class GUI {
 		frame.getContentPane().add(advance25);
 		
 		
-		/* EXPERIMENTAL FEATURE
 		//terminate is an array in order 
 		//to make it final so it can be added to an action listener
 		final boolean[] terminate = new boolean[1];
 		terminate[0] = false;
 		
+		
+		class AdvanceOne implements Runnable {
+			public void run(){
+				c.advance();
+				c.validate();
+				c.repaint();
+			}
+		}
+		
+		
 		JButton advanceC = new JButton("Grow Continually");
 		//advance Continually
 		advanceC.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				while(!terminate[0]){
-					executorService.submit(new Advance());
-				}
+				executorService[0].scheduleAtFixedRate(new AdvanceOne(), 0, 100, TimeUnit.MILLISECONDS);
 			}
 		});
 		advanceC.setBounds(474, 312, 308, 41);
@@ -142,12 +150,12 @@ public class GUI {
 		//stop Growth
 		stopAdvance.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				terminate[0] = true;
+				executorService[0].shutdown();
+				executorService[0] = Executors.newSingleThreadScheduledExecutor();
 			}
 		});
 		stopAdvance.setBounds(474, 368, 308, 41);
 		frame.getContentPane().add(stopAdvance);
-		*/
 		
 		
 		JButton reset = new JButton("Clear");
